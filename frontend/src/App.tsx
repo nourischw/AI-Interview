@@ -6,17 +6,18 @@ import Header from './components/Header';
 import ControlPanel from './components/ControlPanel';
 import TranscriptionPanel from './components/TranscriptionPanel';
 import ResponsePanel from './components/ResponsePanel';
+import DocumentManager from './components/DocumentManager';
 import SettingsModal from './components/SettingsModal';
 import ComplianceModal from './components/ComplianceModal';
 
 function App() {
-  const { 
-    session, 
-    isRecording, 
-    isHidden, 
+  const {
+    session,
+    isRecording,
+    isHidden,
     isStealthEnabled,
     currentResponse,
-    startSession, 
+    startSession,
     endSession,
     addTranscription,
     setResponse,
@@ -27,6 +28,7 @@ function App() {
 
   const [showSettings, setShowSettings] = useState(false);
   const [showCompliance, setShowCompliance] = useState(true);
+  const [showDocuments, setShowDocuments] = useState(false);
 
   useEffect(() => {
     // Connect to WebSocket
@@ -130,9 +132,9 @@ function App() {
       />
 
       <main className="container mx-auto px-4 py-6 max-w-6xl">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column */}
-          <div className="space-y-6">
+          <div className="lg:col-span-2 space-y-6">
             <ControlPanel
               isActive={session.isActive}
               isRecording={isRecording}
@@ -147,13 +149,40 @@ function App() {
             <TranscriptionPanel />
           </div>
 
-          {/* Right Column */}
+          {/* Right Column - Documents & Response */}
           <div className="space-y-6">
-            <ResponsePanel 
-              response={currentResponse}
-              isGenerating={useAppStore.getState().isGenerating}
-            />
+            {showDocuments ? (
+              <DocumentManager />
+            ) : (
+              <ResponsePanel
+                response={currentResponse}
+                isGenerating={useAppStore.getState().isGenerating}
+              />
+            )}
           </div>
+        </div>
+
+        {/* Toggle Documents Button */}
+        <div className="fixed bottom-6 right-6">
+          <button
+            onClick={() => setShowDocuments(!showDocuments)}
+            className={`p-4 rounded-full shadow-lg transition-all ${
+              showDocuments
+                ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                : 'bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+            }`}
+            title={showDocuments ? 'Show Responses' : 'Manage Documents'}
+          >
+            {showDocuments ? (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            ) : (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+            )}
+          </button>
         </div>
       </main>
 
