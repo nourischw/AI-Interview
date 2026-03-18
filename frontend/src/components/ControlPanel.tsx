@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface ControlPanelProps {
   isActive: boolean;
@@ -7,8 +7,14 @@ interface ControlPanelProps {
   onStart: () => void;
   onStop: () => void;
   onStealthToggle: () => void;
+  onBossKeyToggle?: () => void;
   isStealthEnabled: boolean;
   isHidden: boolean;
+  stealthStatus?: {
+    isBossKeyActive: boolean;
+    isScreenSharing: boolean;
+    platform: string;
+  };
 }
 
 const ControlPanel: React.FC<ControlPanelProps> = ({
@@ -18,9 +24,26 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
   onStart,
   onStop,
   onStealthToggle,
+  onBossKeyToggle,
   isStealthEnabled,
   isHidden,
+  stealthStatus,
 }) => {
+  const [statusMessage, setStatusMessage] = useState<string>('');
+
+  // Update status based on stealth state
+  useEffect(() => {
+    if (stealthStatus?.isBossKeyActive) {
+      setStatusMessage('🔒 Boss Key Active - Press Ctrl+Shift+X to restore');
+    } else if (stealthStatus?.isScreenSharing) {
+      setStatusMessage('⚠️ Screen Sharing Detected');
+    } else if (isHidden) {
+      setStatusMessage('👻 Hidden Mode Active');
+    } else {
+      setStatusMessage('✅ All systems normal');
+    }
+  }, [stealthStatus, isHidden]);
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 floating-panel">
       <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
@@ -78,6 +101,27 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
         </div>
       )}
 
+      {/* Stealth Status */}
+      {isActive && (
+        <div className={`mb-4 p-3 rounded-lg border ${
+          stealthStatus?.isBossKeyActive
+            ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+            : stealthStatus?.isScreenSharing
+            ? 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800'
+            : 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+        }`}>
+          <p className={`text-sm font-medium ${
+            stealthStatus?.isBossKeyActive
+              ? 'text-red-700 dark:text-red-300'
+              : stealthStatus?.isScreenSharing
+              ? 'text-yellow-700 dark:text-yellow-300'
+              : 'text-blue-700 dark:text-blue-300'
+          }`}>
+            {statusMessage}
+          </p>
+        </div>
+      )}
+
       {/* Quick Actions */}
       <div className="grid grid-cols-2 gap-3">
         <button
@@ -98,24 +142,45 @@ const ControlPanel: React.FC<ControlPanelProps> = ({
         </button>
 
         <button
-          className="py-3 px-4 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-          onClick={() => {/* Manual trigger */}}
+          onClick={onBossKeyToggle}
+          disabled={!isStealthEnabled}
+          className={`py-3 px-4 rounded-lg font-medium transition-colors ${
+            stealthStatus?.isBossKeyActive
+              ? 'bg-red-500 hover:bg-red-600 text-white'
+              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+          }`}
+          title="Boss Key - Instant hide with fake desktop"
         >
           <div className="flex items-center justify-center space-x-2">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
-            <span>Generate</span>
+            <span>{stealthStatus?.isBossKeyActive ? 'Locked' : 'Boss Key'}</span>
           </div>
         </button>
       </div>
 
       {/* Keyboard Shortcuts Info */}
       <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-        <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-          Press <kbd className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-xs">Ctrl</kbd>+<kbd className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-xs">Shift</kbd>+<kbd className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-xs">X</kbd> to quickly hide/show
-        </p>
+        <div className="space-y-2">
+          <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+            <kbd className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-xs">Ctrl</kbd>+<kbd className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-xs">Shift</kbd>+<kbd className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-xs">X</kbd> Toggle Hide/Show
+          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+            <kbd className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-xs">Ctrl</kbd>+<kbd className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-xs">Shift</kbd>+<kbd className="px-2 py-1 bg-gray-200 dark:bg-gray-700 rounded text-xs">Z</kbd> Boss Key (Fake Desktop)
+          </p>
+        </div>
       </div>
+
+      {/* Platform Info */}
+      {stealthStatus?.platform && (
+        <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+          <p className="text-xs text-gray-400 dark:text-gray-500 text-center">
+            Platform: <span className="font-medium">{stealthStatus.platform}</span>
+            {stealthStatus.platform === 'windows' && ' 🪟'}
+          </p>
+        </div>
+      )}
     </div>
   );
 };
