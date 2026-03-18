@@ -1,0 +1,124 @@
+{
+  "$schema": "./config.schema.json",
+  "version": "1.0.0",
+  "server": {
+    "port": 3001,
+    "host": "localhost",
+    "cors": {
+      "origins": ["http://localhost:3000", "http://localhost:5173"],
+      "credentials": true
+    }
+  },
+  "stt": {
+    "provider": "mock",
+    "sampleRate": 16000,
+    "channels": 1,
+    "vadThreshold": 0.5,
+    "speechPadMs": 200,
+    "noiseSuppression": true,
+    "language": "auto",
+    "providers": {
+      "whisper": {
+        "modelPath": "./models/whisper",
+        "language": "auto"
+      },
+      "azure": {
+        "region": "eastus",
+        "speechRecognitionLanguage": "en-US"
+      },
+      "deepgram": {
+        "model": "nova-2",
+        "language": "en",
+        "punctuate": true,
+        "interimResults": true
+      }
+    }
+  },
+  "llm": {
+    "provider": "openai",
+    "model": "gpt-3.5-turbo",
+    "temperature": 0.7,
+    "maxTokens": 500,
+    "timeout": 30000,
+    "retryAttempts": 3,
+    "cache": {
+      "enabled": true,
+      "ttlSeconds": 300
+    },
+    "providers": {
+      "openai": {
+        "baseUrl": "https://api.openai.com/v1",
+        "models": ["gpt-3.5-turbo", "gpt-4", "gpt-4-turbo"]
+      },
+      "anthropic": {
+        "baseUrl": "https://api.anthropic.com",
+        "models": ["claude-3-opus", "claude-3-sonnet", "claude-3-haiku"]
+      },
+      "google": {
+        "baseUrl": "https://generativelanguage.googleapis.com",
+        "models": ["gemini-pro", "gemini-pro-vision"]
+      },
+      "ollama": {
+        "baseUrl": "http://localhost:11434",
+        "models": ["llama2", "mistral", "codellama"]
+      }
+    }
+  },
+  "stealth": {
+    "enabled": true,
+    "excludeFromCapture": true,
+    "hideFromTaskbar": false,
+    "processCamouflage": false,
+    "emergencyHotkey": "Ctrl+Shift+X",
+    "autoHideOnBlur": true,
+    "opacityWhenHidden": 0,
+    "proctoringDetection": true
+  },
+  "detector": {
+    "pauseThresholdMs": 800,
+    "minQuestionLength": 5,
+    "triggerCooldownMs": 15000,
+    "questionKeywords": ["?", "?", "如何", "為什麼", "請說明", "how", "why", "explain", "describe", "tell me"],
+    "blacklistPhrases": ["好的", "接下來", "我們休息一下", "ok", "next", "let's take a break", "thank you"]
+  },
+  "rag": {
+    "enabled": true,
+    "chunkSize": 500,
+    "chunkOverlap": 50,
+    "topK": 5,
+    "embeddingModel": "bge-small-zh",
+    "hybridSearch": true,
+    "rerank": true,
+    "storage": {
+      "type": "local",
+      "path": "./data/vectors"
+    }
+  },
+  "session": {
+    "maxDuration": 7200000,
+    "idleTimeout": 300000,
+    "maxTranscriptions": 1000,
+    "autoSave": true
+  },
+  "logging": {
+    "level": "info",
+    "format": "json",
+    "sanitize": true,
+    "output": {
+      "console": true,
+      "file": false,
+      "filePath": "./logs/app.log"
+    }
+  },
+  "security": {
+    "rateLimit": {
+      "enabled": true,
+      "windowMs": 60000,
+      "maxRequests": 100
+    },
+    "encryption": {
+      "algorithm": "aes-256-gcm",
+      "keyDerivation": "pbkdf2"
+    }
+  }
+}
