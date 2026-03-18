@@ -1,0 +1,55 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+build/
+release/
+*.tsbuildinfo
+
+# Environment
+.env
+.env.local
+.env.production
+.env*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+coverage/
+.test-results/
+
+# Temporary files
+tmp/
+temp/
+
+# Electron
+*.dmg
+*.exe
+*.AppImage
+*.deb
+
+# OS
+Thumbs.db
+.Spotlight-V100
+.Trashes
+
+# Project tracking
+Plan.md
+STATUS.md
